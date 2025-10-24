@@ -77,3 +77,49 @@ class TestBooksCollector:
     def test_delete_book_from_favorites_nonexistent_book_no_error(self, collector):
         collector.delete_book_from_favorites("Несуществующая книга")
         assert "Несуществующая книга" not in collector.get_list_of_favorites_books()
+
+    def test_get_books_genre_empty_collection_returns_empty_dict(self, collector):
+        assert collector.get_books_genre() == {}
+
+    def test_get_books_genre_with_books_returns_correct_dict(self, collector_with_books):
+        books_genre = collector_with_books.get_books_genre()
+        expected_books = {
+            "Война и мир": "Фантастика",
+            "Оно": "Ужасы", 
+            "Том и Джерри": "Мультфильмы",
+            "Шерлок Холмс": "Детективы"
+        }
+        assert books_genre == expected_books
+        assert len(books_genre) == 4
+
+    def test_get_books_genre_after_adding_book_dict_updated(self, collector):
+        initial_books = collector.get_books_genre()
+        assert initial_books == {}
+        
+        collector.add_new_book("Новая книга")
+        updated_books = collector.get_books_genre()
+        assert "Новая книга" in updated_books
+        assert updated_books["Новая книга"] == ''
+
+    def test_get_book_genre_existing_book_with_genre_returns_genre(self, collector_with_books):
+        genre = collector_with_books.get_book_genre("Война и мир")
+        assert genre == "Фантастика"
+
+    def test_get_book_genre_existing_book_without_genre_returns_empty_string(self, collector):
+        book_name = "Книга без жанра"
+        collector.add_new_book(book_name)
+        genre = collector.get_book_genre(book_name)
+        assert genre == ''
+
+    def test_get_book_genre_nonexistent_book_returns_empty_string(self, collector):
+        genre = collector.get_book_genre("Несуществующая книга")
+        assert genre is None 
+
+    def test_get_book_genre_after_setting_genre_returns_new_genre(self, collector):
+        book_name = "Тестовая книга"
+        collector.add_new_book(book_name)
+        
+        assert collector.get_book_genre(book_name) == ''
+        
+        collector.set_book_genre(book_name, "Фантастика")
+        assert collector.get_book_genre(book_name) == "Фантастика"
